@@ -39,7 +39,7 @@ public class UsersService {
         Users user = Users.builder()
                 .email(signUp.getEmail())
                 .password(passwordEncoder.encode(signUp.getPassword()))
-                .roles(Collections.singletonList("ROLE_USER"))
+                .roles(Collections.singletonList(Authority.ROLE_USER.name()))
                 .build();
         usersRepository.save(user);
 
@@ -47,6 +47,10 @@ public class UsersService {
     }
 
     public ResponseEntity<?> login(UserRequestDto.Login login) {
+
+        if (usersRepository.findByEmail(login.getEmail()).orElse(null) == null) {
+            return response.fail("해당하는 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
 
         // 1. Login ID/PW 를 기반으로 Authentication 객체 생성
         // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
@@ -72,7 +76,7 @@ public class UsersService {
                 .orElseThrow(() -> new UsernameNotFoundException("No authentication information."));
 
         // add ROLE_ADMIN
-        user.getRoles().add("ROLE_ADMIN");
+        user.getRoles().add(Authority.ROLE_ADMIN.name());
         usersRepository.save(user);
 
         return response.success();
