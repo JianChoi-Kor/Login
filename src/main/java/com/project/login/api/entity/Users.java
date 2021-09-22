@@ -31,19 +31,9 @@ public class Users extends BaseTime implements UserDetails {
     private String password;
 
     @Column
-    private String refreshToken;
-
-    @Column
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
-
-    @Builder
-    public Users(String email, String password, List<String> roles) {
-        this.email = email;
-        this.password = password;
-        this.roles = roles;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
