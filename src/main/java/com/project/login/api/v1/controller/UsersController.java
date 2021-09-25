@@ -1,11 +1,13 @@
 package com.project.login.api.v1.controller;
 
+import com.project.login.api.jwt.JwtTokenProvider;
 import com.project.login.api.lib.Helper;
 import com.project.login.api.v1.dto.Response;
 import com.project.login.api.v1.dto.request.UserRequestDto;
 import com.project.login.api.v1.service.UsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
@@ -14,12 +16,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 @RestController
 public class UsersController {
 
+    private final JwtTokenProvider jwtTokenProvider;
     private final UsersService usersService;
     private final Response response;
 
@@ -48,6 +53,15 @@ public class UsersController {
             return response.invalidFields(Helper.refineErrors(errors));
         }
         return usersService.reissue(reissue);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@Validated UserRequestDto.Logout logout, Errors errors) {
+        // validation check
+        if (errors.hasErrors()) {
+            return response.invalidFields(Helper.refineErrors(errors));
+        }
+        return usersService.logout(logout);
     }
 
     @GetMapping("/authority")
